@@ -1,7 +1,6 @@
 import telebot
 import config
 import uuid
-import scripts
 import os
 from flask import Flask, request
 import io
