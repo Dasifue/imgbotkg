@@ -4,6 +4,13 @@ import uuid
 import scripts
 import os
 from flask import Flask, request
+import io
+import click
+import glob
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
+
 
 server = Flask(__name__)
 bot = telebot.TeleBot(config.token, parse_mode=None)
@@ -34,14 +41,20 @@ def photo(message):
 	fileID = message.photo[-1].file_id
 	file_info = bot.get_file(fileID)
 	downloaded_file = bot.download_file(file_info.file_path)
-	save_way = "source_images/"+str(uuid.uuid1())+".jpg"    
-	with open(save_way, 'wb') as new_file:
-		new_file.write(downloaded_file)
-	way = scripts.signature(save_way, word)
-	os.remove(save_way)
-	img = open(way, 'rb')
-	bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
-	os.remove(way)
+	font = ImageFont.truetype('fonts/ddg.ttf', size=100)
+	im = Image.open(io.BytesIO(downloaded_file))   
+	draw_text = ImageDraw.Draw(im)
+	size = draw_text.textsize('~'+' '+word, font=font)
+	draw_text.text(
+	    (im.width-(size[0]+7), im.height-(size[1]+7)),
+	    '~'+' '+word,
+	    font=font,
+	    fill=('white')
+	    )
+    
+	
+	bot.send_photo(message.chat.id, im, reply_to_message_id=message.message_id)
+	
 
 @server.route("/" + config.token, methods=["POST"])
 def getMessage():
