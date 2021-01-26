@@ -1,11 +1,8 @@
 import telebot
 import config
-import uuid
 import os
 from flask import Flask, request
 import io
-import click
-import glob
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -35,8 +32,9 @@ def echo_all(message):
 
 @bot.message_handler(content_types=['photo'])
 def photo(message):
-	print(message)
 	word = message.caption
+	if not word:
+		word = 'hello'
 	fileID = message.photo[-1].file_id
 	file_info = bot.get_file(fileID)
 	downloaded_file = bot.download_file(file_info.file_path)
